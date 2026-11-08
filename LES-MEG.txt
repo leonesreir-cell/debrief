@@ -1,0 +1,21 @@
+DEBRIEF – slik får du appen på iPhonen
+
+Appen er en nettside som må ligge på nett én gang. Etterpå virker den uten nett, og alt du skriver blir liggende bare på telefonen din.
+
+1. Lag en gratis konto på github.com.
+2. Trykk på «+» øverst til høyre og velg «New repository».
+   Kall det debrief, velg «Public» og trykk «Create repository».
+3. Trykk på lenken «uploading an existing file».
+   Dra inn alle filene i denne mappen (selve filene, ikke mappen) og trykk «Commit changes».
+4. Gå til «Settings» og så «Pages».
+   Under «Build and deployment» velger du «Deploy from a branch», branch «main» og mappen «/ (root)». Trykk «Save».
+5. Etter et par minutter ligger appen på:
+   https://BRUKERNAVNET-DITT.github.io/debrief/
+6. Åpne adressen i Safari på iPhonen, trykk på Del og velg «Legg til på Hjem-skjerm».
+
+Personvern: Koden er offentlig, men det du skriver i appen sendes aldri noe sted. Det ligger bare på telefonen.
+
+Sikkerhetskopi: Innstillinger → Lagre sikkerhetskopi. Gjør det innimellom, og alltid før du bytter telefon.
+Bruk alltid appen fra Hjem-skjermen. Dataene der er adskilt fra Safari.
+
+Endrer du filene senere: øk tallet i CACHE øverst i sw.js (debrief-v1 → debrief-v2), så henter telefonen den nye versjonen.
