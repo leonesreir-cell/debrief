@@ -1,5 +1,5 @@
 // Debrief: offline cache. Bump CACHE when you change any file, so phones pick up the new version.
-const CACHE = 'debrief-v1';
+const CACHE = 'debrief-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -28,6 +28,9 @@ self.addEventListener('fetch', e => {
   if (url.origin !== self.location.origin) return;
 
   // The page itself: try the network first so updates arrive, fall back to the cached copy offline.
+  // Only the app page itself is handled offline; other files (like the calendar file) go straight to the network.
+  const isAppPage = url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+  if (req.mode === 'navigate' && !isAppPage) return;
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req)

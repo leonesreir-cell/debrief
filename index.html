@@ -311,7 +311,7 @@ function getPath(o,p){return p.split('.').reduce((x,k)=>x==null?x:x[k],o);}
 /* ---------- storage ---------- */
 function fresh(){return {v:1,
   themes:[{id:'energi',name:'Energi'},{id:'motivasjon',name:'Motivasjon'},{id:'fokus',name:'Fokus'},{id:'fremgang',name:'Fremgang'}],
-  settings:{timerMin:10,showFacts:true,hideInstall:false},
+  settings:{timerMin:10,showFacts:true,hideInstall:false,hideReminder:false},
   entries:{},weeks:{},draft:null,lastBackup:null,created:new Date().toISOString()};}
 function normalize(o){
   const f=fresh(); o=(o&&typeof o==='object')?o:{};
@@ -408,6 +408,7 @@ function banners(){
   if(!storageOK)h+=`<div class="note"><b>Appen får ikke lagret.</b> Åpne den fra Hjem-skjermen eller i Safari uten privat surfing.</div>`;
   if(db.draft&&db.draft.date!==today&&!db.draft.editing)h+=`<div class="note"><b>Du har en uferdig debrief fra ${fmtShort(db.draft.date).toLowerCase()}.</b><div class="row"><button class="btn small" data-act="resumeOld">Fortsett den</button><button class="btn small ghost" data-act="discardOld">Forkast</button></div></div>`;
   if(!isStandalone()&&!db.settings.hideInstall)h+=`<div class="note"><b>Legg appen på Hjem-skjermen.</b> Trykk på Del i Safari og velg «Legg til på Hjem-skjerm». Da åpnes den i fullskjerm og virker uten nett.<div class="row"><button class="btn small ghost" data-act="dismissInstall">Skjul</button></div></div>`;
+  if(!db.settings.hideReminder)h+=`<div class="note"><b>Få varsel kl. 21 hver kveld.</b> Appen legger inn en gjentakende hendelse i Kalender-appen, så minner telefonen deg på debriefen.<div class="row"><a class="btn small" href="kveldsdebrief.ics" target="_blank" rel="noopener" data-act="reminder">Legg til i kalenderen</a><button class="btn small ghost" data-act="hideReminder">Skjul</button></div></div>`;
   const n=Object.keys(db.entries).length;
   const last=db.lastBackup?new Date(db.lastBackup).getTime():0;
   if(n>=5&&Date.now()-last>21*864e5)h+=`<div class="note"><b>Ta en sikkerhetskopi.</b> Alt ligger bare på denne telefonen. Sletter du appen, forsvinner det.<div class="row"><button class="btn small" data-act="export">Lagre sikkerhetskopi</button></div></div>`;
@@ -747,6 +748,9 @@ function settingsHTML(){
     <div class="theme-row"><input id="newTheme" placeholder="Nytt tema, f.eks. Søvn" aria-label="Nytt tema"><button class="btn small" data-act="addTheme">Legg til</button></div></section>
   <section><h3 class="mini" style="margin-top:0">Lengde på timeren</h3>
     <div class="seg3">${[5,10,15].map(m=>`<button data-act="timerMin" data-v="${m}" aria-pressed="${db.settings.timerMin===m}">${m} min</button>`).join('')}</div></section>
+  <section><h3 class="mini" style="margin-top:0">Varsel kl. 21</h3>
+    <p class="sub" style="margin:0 0 12px">Legger inn en hendelse i Kalender-appen som gjentas hver kveld kl. 21, med varsel. Trykk «Legg til alle» når kalenderen spør.</p>
+    <a class="btn" href="kveldsdebrief.ics" target="_blank" rel="noopener" data-act="reminder">Legg til i kalenderen</a></section>
   <section><label class="toggle"><input type="checkbox" id="showFacts" ${db.settings.showFacts?'checked':''}> Vis steget «Fakta fra dagen»</label></section>
   <section><h3 class="mini" style="margin-top:0">Sikkerhetskopi</h3>
     <p class="sub" style="margin:0 0 12px">Alt ligger bare på denne telefonen. ${db.lastBackup?`Siste kopi: ${fmtShort(iso(new Date(db.lastBackup))).toLowerCase()}.`:'Du har ikke tatt noen kopi ennå.'} Lagre kopien i Filer eller send den til deg selv.</p>
@@ -814,6 +818,8 @@ document.addEventListener('click',async e=>{
   case 'resumeOld': openFlow(db.draft.date); break;
   case 'discardOld': db.draft=null; save(); render(); break;
   case 'dismissInstall': db.settings.hideInstall=true; save(); render(); break;
+  case 'reminder': db.settings.hideReminder=true; db.settings.reminderAdded=new Date().toISOString(); save(); setTimeout(()=>{if(!$('#sheet-root').innerHTML)render();},800); break;
+  case 'hideReminder': db.settings.hideReminder=true; save(); render(); break;
   case 'export': exportBackup(); break;
   case 'import': $('#importFile').value=''; $('#importFile').click(); break;
   case 'addTheme':{const inp=$('#newTheme');const v=(inp.value||'').trim();if(!v){inp.focus();return;}db.themes.push({id:uid('t'),name:v});save();refreshSettings();break;}
